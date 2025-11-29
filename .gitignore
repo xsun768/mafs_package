@@ -1,5 +1,0 @@
-
-# Large dataset files - NEVER commit
-*.npz
-!src/mafs/data/cancer_data/*.npz
-.DS_Store
