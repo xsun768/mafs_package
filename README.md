@@ -1,7 +1,7 @@
 # MAFS: Multi-Head Attention-based Feature Selection
 
 <div align="center">
-  <img src="docs/images/plot.png" alt="MAFS Framework" width="800"/>
+  <img src="https://github.com/user-attachments/assets/8f04b682-960e-494c-9baa-05b7efba1225" alt="MAFS Framework" width="800"/>
 </div>
 
 ---
