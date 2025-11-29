@@ -25,10 +25,10 @@ class FeatureSelection(nn.Module):
         return (weights - mean) / std
     
     def get_selection_rate(self):
-        return torch.abs(self.selection_rate)
+        return torch.relu(self.selection_rate)
     
     def forward(self, x):
-        return x * self.get_selection_rate()
+        return x * torch.relu(self.selection_rate)
 
 
 class Classifier(nn.Module):
@@ -78,13 +78,13 @@ class SingleHeadSelector(nn.Module):
 
 
 def train_single_head(model, train_loader, val_loader, device):
-    lr = 1e-5
+    lr = 0.001
     epochs = 100
     weight_decay = 1e-5
     patience = 10
     gamma = 0.5
-    reg_lambda = 1e-5
-    y_type = 'numerical'
+    reg_lambda = 1e-2
+    y_type = 'categorical'
     
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
