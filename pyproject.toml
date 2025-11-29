@@ -1,0 +1,100 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mafs"
+version = "0.1.0"
+description = "Multi-head Attention Feature Selection for High-Dimensional Data via Deep Fusion of Filter Methods"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+
+# Authors information
+authors = [
+    {name = "Xiaoyan Sun", email = "xsun768@aucklanduni.ac.nz"},
+    {name = "Qingyu Meng", email = "qmeng885@aucklanduni.ac.nz"},
+    {name = "Yalu Wen", email = "ywen@auckland.ac.nz"}
+]
+
+keywords = [
+    "feature selection",
+    "machine learning",
+    "bioinformatics",
+    "deep learning",
+    "biomedical data",
+    "high-dimensional data",
+    "multi-head attention",
+    "filter methods",
+    "deep fusion"
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "numpy>=1.20.0,<3.0.0",
+    "scipy>=1.7.0",
+    "pandas>=1.3.0",
+    "torch>=1.9.0",
+    "scikit-learn>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=3.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "ipython>=8.0",
+]
+
+viz = [
+    "matplotlib>=3.4.0",
+    "plotnine>=0.10.0",
+]
+
+all = [
+    "pytest>=7.0",
+    "pytest-cov>=3.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "ipython>=8.0",
+    "matplotlib>=3.4.0",
+    "plotnine>=0.10.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/xsun768/mafs_package"
+Repository = "https://github.com/xsun768/mafs_package"
+Documentation = "https://github.com/xsun768/mafs_package#readme"
+"Bug Tracker" = "https://github.com/xsun768/mafs_package/issues"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mafs = [
+    "filters/bcor_script.R",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+
