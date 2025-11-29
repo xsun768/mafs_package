@@ -1,0 +1,197 @@
+# ==========================================
+# Build System Configuration
+# ==========================================
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# ==========================================
+# Project Metadata
+# ==========================================
+[project]
+name = "mafs"
+version = "0.1.0"
+description = "Multi-head Attention-based Feature Selection for high-dimensional biomedical data"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+
+# Authors
+authors = [
+    {name = "Xiaoyan Sun", email = "xsun768@aucklanduni.ac.nz"}
+]
+
+# Maintainers (optional, usually same as authors)
+maintainers = [
+    {name = "Xiaoyan Sun", email = "xsun768@aucklanduni.ac.nz"}
+]
+
+# Keywords for PyPI search
+keywords = [
+    "feature selection",
+    "machine learning",
+    "bioinformatics",
+    "deep learning",
+    "biomedical data",
+    "high-dimensional data",
+    "adaptive lasso",
+    "attention mechanism"
+]
+
+# PyPI classifiers
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+# ==========================================
+# Dependencies
+# ==========================================
+# Core dependencies (what users need to run your package)
+dependencies = [
+    "numpy>=1.20.0,<3.0.0",
+    "scipy>=1.7.0",
+    "pandas>=1.3.0",
+    "torch>=1.9.0",
+    "scikit-learn>=1.0.0",
+]
+
+# Optional dependencies
+[project.optional-dependencies]
+# Development tools
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=3.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "ipython>=8.0",
+    "jupyter>=1.0",
+    "optuna>=3.0.0",
+    "tqdm>=4.60.0",
+]
+
+# Visualization tools
+viz = [
+    "matplotlib>=3.4.0",
+    "plotnine>=0.10.0",
+]
+
+# All optional dependencies combined
+all = [
+    "pytest>=7.0",
+    "pytest-cov>=3.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "ipython>=8.0",
+    "jupyter>=1.0",
+    "optuna>=3.0.0",
+    "tqdm>=4.60.0",
+    "matplotlib>=3.4.0",
+    "plotnine>=0.10.0",
+]
+
+# ==========================================
+# Project URLs
+# ==========================================
+[project.urls]
+Homepage = "https://github.com/xsun768/mafs_package"
+Repository = "https://github.com/xsun768/mafs_package"
+Documentation = "https://github.com/xsun768/mafs_package#readme"
+Issues = "https://github.com/xsun768/mafs_package/issues"
+Changelog = "https://github.com/xsun768/mafs_package/releases"
+
+# ==========================================
+# Setuptools Configuration
+# ==========================================
+[tool.setuptools]
+# Include package data (like datasets)
+include-package-data = true
+
+# Specify where to find packages
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# Specify package data to include
+[tool.setuptools.package-data]
+mafs = [
+    "data/datasets/simulated/*.npz",
+    "data/datasets/real/*.npz",
+    "data/datasets/*/README.md",
+]
+
+# ==========================================
+# Black Configuration (code formatting)
+# ==========================================
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# ==========================================
+# Pytest Configuration (testing)
+# ==========================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+# ==========================================
+# Coverage Configuration (test coverage)
+# ==========================================
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+
+# ==========================================
+# Flake8 Configuration (linting)
+# Note: Flake8 doesn't officially support pyproject.toml yet
+# but some tools can read it
+# ==========================================
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+]
