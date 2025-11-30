@@ -48,7 +48,7 @@ library(Ball)
 python test_multi_head.py \
   --data_path data/simulation_data/data_25k_combine_categorical.npz \
   --y_type categorical \
-  --hidden_scale 4 \
+  --hidden_scale 200 \
   --methods sis bcor kendall
 ```
 
@@ -57,7 +57,7 @@ python test_multi_head.py \
 python test_multi_head.py \
   --data_path data/simulation_data/data_25k_combine_numerical.npz \
   --y_type numerical \
-  --hidden_scale 4 \
+  --hidden_scale 200 \
   --methods sis bcor kendall
 ```
 
@@ -66,6 +66,6 @@ python test_multi_head.py \
 python test_multi_head.py \
   --data_path data/simulation_data/data_25k_combine_numerical.npz \
   --y_type numerical \
-  --hidden_scale 4 \
+  --hidden_scale 200 \
   --methods sis kendall
 ```
