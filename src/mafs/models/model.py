@@ -32,8 +32,8 @@ class FeatureSelection(nn.Module):
 
 
 class Classifier(nn.Module):
-    def __init__(self, input_size, n_classes, hidden_scale=4, 
-                 dropout_rate=0.2, y_type='categorical'):
+    def __init__(self, input_size, n_classes, hidden_scale=200, 
+                 dropout_rate=0.4, y_type='categorical'):
         super().__init__()
         
         hidden_size = int(input_size / hidden_scale)
