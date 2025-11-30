@@ -38,7 +38,8 @@ library(Ball)
   - `sis`: Sure Independence Screening 
   - `bcor`: Ball-correlation Sure Independence Screening 
   - `kendall`: Kendall's Tau
-
+- `--gamma`:  adaptive weight parameter for regularization strength adjustment [default: `0.5`]
+- `--reg_lambda`:  regularization coefficient [default: `1e-5`]
 ---
 
 ## Examples
@@ -50,6 +51,8 @@ python test_multi_head.py \
   --y_type categorical \
   --hidden_scale 200 \
   --methods sis bcor kendall
+  --gamma 0.5
+  --reg_lmbda 1e-5
 ```
 
 ### Example 2: Regression
@@ -59,6 +62,8 @@ python test_multi_head.py \
   --y_type numerical \
   --hidden_scale 200 \
   --methods sis bcor kendall
+  --gamma 0.5
+  --reg_lmbda 1e-5
 ```
 
 ### Example 3: Fast Mode (2 heads)
@@ -68,4 +73,6 @@ python test_multi_head.py \
   --y_type numerical \
   --hidden_scale 200 \
   --methods sis kendall
+  --gamma 0.5
+  --reg_lmbda 1e-5
 ```
