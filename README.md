@@ -52,7 +52,7 @@ python test_multi_head.py \
   --hidden_scale 200 \
   --methods sis bcor kendall
   --gamma 0.5
-  --reg_lmbda 1e-5
+  --reg_lambda 1e-5
 ```
 
 ### Example 2: Regression
@@ -63,7 +63,7 @@ python test_multi_head.py \
   --hidden_scale 200 \
   --methods sis bcor kendall
   --gamma 0.5
-  --reg_lmbda 1e-5
+  --reg_lambda 1e-5
 ```
 
 ### Example 3: Fast Mode (2 heads)
@@ -74,5 +74,5 @@ python test_multi_head.py \
   --hidden_scale 200 \
   --methods sis kendall
   --gamma 0.5
-  --reg_lmbda 1e-5
+  --reg_lambda 1e-5
 ```
