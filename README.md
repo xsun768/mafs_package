@@ -18,5 +18,54 @@ Comprehensive experiments on multiple high-dimensional biomedical datasets, incl
 
 ## Installation
 ```bash
-pip install git+https://github.com/xsun768/mafs_package.git
+git clone https://github.com/yourname/mafs.git
+cd mafs
+pip install -r requirements.txt
+```
+```bash
+Bcor relies on R packages, including ball. If automatic installation fails, you can manually install them in R by running the following codes:
+Rscript -e "install.packages('Ball')"
+library(Ball)
+```
+
+---
+
+## Required Argument Details
+- `--data_path`: Path to .npz file
+- `--y_type`:  Task type- `categorical` (classification) or `numerical` (regression)
+- `--hidden_scale`: Hidden layer scale, (hidden_size = input_features / hidden_scale) [default: `200`]
+- `--methods`: Filter methods for multi-head initialization [default: `sis bcor kendall`]
+  - `sis`: Sure Independence Screening 
+  - `bcor`: Ball-correlation Sure Independence Screening 
+  - `kendall`: Kendall's Tau
+
+---
+
+## Examples
+
+### Example 1: Classification (Multi-class)
+```bash
+python test_multi_head.py \
+  --data_path data/simulation_data/data_25k_combine_categorical.npz \
+  --y_type categorical \
+  --hidden_scale 4 \
+  --methods sis bcor kendall
+```
+
+### Example 2: Regression
+```bash
+python test_multi_head.py \
+  --data_path data/simulation_data/data_25k_combine_numerical.npz \
+  --y_type numerical \
+  --hidden_scale 4 \
+  --methods sis bcor kendall
+```
+
+### Example 3: Fast Mode (2 heads)
+```bash
+python test_multi_head.py \
+  --data_path data/simulation_data/data_25k_combine_numerical.npz \
+  --y_type numerical \
+  --hidden_scale 4 \
+  --methods sis kendall
 ```
