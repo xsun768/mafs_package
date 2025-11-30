@@ -2,24 +2,19 @@ import os
 import time
 import numpy as np
 import pandas as pd
-import torch
 import subprocess
-from pathlib import Path
-import warnings
-warnings.filterwarnings("ignore")
+import tempfile
+
 
 class BCORFilter:
-    def __init__(self, top_k=100, script_path=None, 
-                 bcor_weight="chisquare", bcor_method="standard"):
+    """
+    Ball Correlation based feature selection using R's Ball package
+    Uses bcorsis function (sequential processing)
+    """
+    def __init__(self, top_k=100, method="standard", weight="chisquare"):
         self.top_k = top_k
-        self.bcor_weight = bcor_weight
-        self.bcor_method = bcor_method
-        
-        if script_path is None:
-            self.script_path = str(Path(__file__).parent / "bcor_script.R")
-        else:
-            self.script_path = script_path
-        
+        self.method = method  # "standard" or other Ball package methods
+        self.weight = weight  # "constant", "probability", or "chisquare"
         self.scores_ = None
         self.selected_indices_ = None
     
@@ -27,34 +22,38 @@ class BCORFilter:
         X = np.asarray(X)
         y = np.asarray(y)
         
-        if not os.path.exists(self.script_path):
-            raise FileNotFoundError(f"R script not found: {self.script_path}")
+        # Find bcorsis.R script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        r_script = os.path.join(script_dir, 'bcorsis.R')
         
-        import tempfile
-        with tempfile.TemporaryDirectory() as temp_dir:
-            input_file = os.path.join(temp_dir, "input.csv")
-            output_file = os.path.join(temp_dir, "output.csv")
-            
-            temp_data = pd.DataFrame(X)
-            temp_data['label'] = y
-            temp_data.to_csv(input_file, index=False)
-            
-            try:
-                subprocess.run([
-                    'Rscript', self.script_path,
-                    input_file, output_file,
-                    self.bcor_method, self.bcor_weight
-                ], check=True, capture_output=True, timeout=3600)
-            except subprocess.CalledProcessError as e:
-                raise RuntimeError(f"R script failed: {e.stderr.decode()}")
-            except FileNotFoundError:
-                raise RuntimeError("Rscript not found. Please install R.")
-            
-            if not os.path.exists(output_file):
-                raise RuntimeError("R script did not produce output")
-            
-            result = pd.read_csv(output_file)
-            self.scores_ = result[self.bcor_weight].values
+        if not os.path.exists(r_script):
+            raise FileNotFoundError(f"bcorsis.R not found at {r_script}")
+        
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f_in:
+            with tempfile.NamedTemporaryFile(mode='r', suffix='.csv', delete=False) as f_out:
+                
+                data = np.column_stack([X, y])
+                np.savetxt(f_in.name, data, delimiter=',')
+                
+                result = subprocess.run(
+                    ['Rscript', r_script, f_in.name, f_out.name, 
+                     self.method, self.weight],
+                    capture_output=True,
+                    text=True,
+                    timeout=600
+                )
+                
+                if result.returncode != 0:
+                    print(f"R script stderr: {result.stderr}")
+                    raise RuntimeError(f"BCOR computation failed: {result.stderr}")
+                
+                scores_df = pd.read_csv(f_out.name)
+                
+                self.scores_ = scores_df[self.weight].values
+                
+                os.unlink(f_in.name)
+                os.unlink(f_out.name)
         
         self.selected_indices_ = np.argsort(self.scores_)[-self.top_k:]
         return self
@@ -76,60 +75,75 @@ class BCORFilter:
         return self.scores_
 
 
-def calculate_bcor_weights(data, label, weights_path, dataset_name, seed,
-                          bcor_method="standard", bcor_weight="chisquare",
-                          script_path=None, data_type=None, y_type=None):
+def calculate_bcor_weights(data, label, weights_path, dataset_name, seed, 
+                          data_type, y_type, method="standard", weight="chisquare"):
     start_time = time.time()
     
-    os.makedirs(weights_path, exist_ok=True)
-    temp_dir = os.path.join(weights_path, 'temp')
-    os.makedirs(temp_dir, exist_ok=True)
-    
-    output_file = os.path.join(
-        weights_path,
-        f'bcor_weights_{data_type}_{y_type}_{dataset_name}_seed{seed}_{bcor_method}_{bcor_weight}.csv'
-    )
-    temp_filename = f"temp_data_{data_type}_{y_type}_{dataset_name}_seed{seed}.csv"
-    input_file_path = os.path.join(temp_dir, temp_filename)
-    
-    if isinstance(data, torch.Tensor):
+    # Convert to numpy
+    if hasattr(data, 'cpu'):
         data = data.cpu().numpy()
-    if isinstance(label, torch.Tensor):
+    else:
+        data = np.asarray(data)
+    
+    if hasattr(label, 'cpu'):
         label = label.cpu().numpy()
+    else:
+        label = np.asarray(label)
     
-    print(f"Computing BCOR scores using Ball correlation")
+    print(f"Computing BCOR scores using Ball package (sequential)")
+    print(f"  Method: {method}, Weight: {weight}")
     
-    try:
-        temp_data = pd.DataFrame(data)
-        temp_data['label'] = label
-        temp_data.to_csv(input_file_path, index=False)
+    os.makedirs(weights_path, exist_ok=True)
+    output_file = os.path.join(
+        weights_path, 
+        f'bcor_weights_{data_type}_{y_type}_{dataset_name}_seed{seed}.csv'
+    )
+    
+    
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    r_script = os.path.join(script_dir, 'bcorsis.R')
+    
+    if not os.path.exists(r_script):
+        raise FileNotFoundError(f"bcorsis.R not found at {r_script}")
+    
+    n_features = data.shape[1]
+    print(f"  Computing BCOR for {n_features} features...")
+    
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f_in:
         
-        r_command = [
-            'Rscript', script_path, input_file_path, output_file,
-            bcor_method, bcor_weight, str(seed)
-        ]
+        combined_data = np.column_stack([data, label])
+        np.savetxt(f_in.name, combined_data, delimiter=',')
         
-        result = subprocess.run(r_command, check=True, capture_output=True, text=True)
+    
+        result = subprocess.run(
+            ['Rscript', r_script, f_in.name, output_file, method, weight],
+            capture_output=True,
+            text=True,
+            timeout=600
+        )
         
-        end_time = time.time()
-        bcor_time = end_time - start_time
+        if result.returncode != 0:
+            print(f"R script stderr: {result.stderr}")
+            raise RuntimeError(f"BCOR computation failed: {result.stderr}")
         
-        selected_features = pd.read_csv(output_file)
-        bcor_scores = selected_features[bcor_weight].values
         
-        weight_df = pd.DataFrame({bcor_weight: bcor_scores})
-        weight_df.to_csv(output_file, index=False)
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr)
         
-        print(f"BCOR computation completed in {bcor_time:.2f}s")
-        print(f"Score stats - Mean: {bcor_scores.mean():.6f}, "
-              f"Max: {np.max(bcor_scores):.6f}, "
-              f"Min: {np.min(bcor_scores):.6f}")
-        
-        return output_file, bcor_time
-        
-    finally:
-        if os.path.exists(input_file_path):
-            try:
-                os.remove(input_file_path)
-            except Exception:
-                pass
+        os.unlink(f_in.name)
+    
+    end_time = time.time()
+    bcor_time = end_time - start_time
+    
+    scores_df = pd.read_csv(output_file)
+    bcor_scores = scores_df[weight].values
+    
+    print(f"BCOR computation completed in {bcor_time:.2f}s")
+    print(f"Score stats - Max: {np.max(bcor_scores):.6f}, "
+          f"Min: {np.min(bcor_scores):.6f}, "
+          f"Mean: {np.mean(bcor_scores):.6f}")
+    
+    return output_file, bcor_time

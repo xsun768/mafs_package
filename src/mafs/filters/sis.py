@@ -2,8 +2,8 @@ import os
 import time
 import numpy as np
 import pandas as pd
-import torch
 from scipy import stats
+
 
 class SISFilter:
     def __init__(self, top_k=100):
@@ -49,10 +49,16 @@ def calculate_sis_weights(data, label, weights_path, dataset_name, seed,
                          data_type, y_type):
     start_time = time.time()
     
-    if isinstance(data, torch.Tensor):
+    # Convert to numpy if needed - handle both torch tensors and arrays
+    if hasattr(data, 'cpu'):  # Check if it's a torch tensor
         data = data.cpu().numpy()
-    if isinstance(label, torch.Tensor):
+    else:
+        data = np.asarray(data)
+    
+    if hasattr(label, 'cpu'):  # Check if it's a torch tensor
         label = label.cpu().numpy()
+    else:
+        label = np.asarray(label)
     
     print("Computing SIS scores using Pearson correlation")
     

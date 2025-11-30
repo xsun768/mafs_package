@@ -2,8 +2,8 @@ import os
 import time
 import numpy as np
 import pandas as pd
-import torch
 from scipy import stats
+
 
 class KendallFilter:
     def __init__(self, top_k=100):
@@ -45,20 +45,26 @@ class KendallFilter:
         return self.scores_
 
 
-def calculate_kendall_weights(data, label, weights_path, dataset_name, seed,
+def calculate_kendall_weights(data, label, weights_path, dataset_name, seed, 
                               data_type, y_type):
     start_time = time.time()
     
-    if isinstance(data, torch.Tensor):
+
+    if hasattr(data, 'cpu'):
         data = data.cpu().numpy()
-    if isinstance(label, torch.Tensor):
-        label = label.cpu().numpy()
+    else:
+        data = np.asarray(data)
     
-    print("Computing Kendall correlation scores")
+    if hasattr(label, 'cpu'):
+        label = label.cpu().numpy()
+    else:
+        label = np.asarray(label)
+    
+    print("Computing Kendall tau scores")
     
     os.makedirs(weights_path, exist_ok=True)
     output_file = os.path.join(
-        weights_path,
+        weights_path, 
         f'kendall_weights_{data_type}_{y_type}_{dataset_name}_seed{seed}.csv'
     )
     
