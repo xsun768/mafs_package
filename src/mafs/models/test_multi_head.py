@@ -124,7 +124,7 @@ def create_weight_files(n_features, methods, weight_dir='./test_weights'):
 
 
 
-def test_dataset(data_path, y_type, device, hidden_scale, methods):
+def test_dataset(data_path, y_type, device, gamma, reg_lambda, hidden_scale, methods):
     """Test MultiHeadSelector on a dataset"""
     print("\n" + "="*60)
     print(f"Testing {y_type.upper()} dataset")
@@ -179,7 +179,9 @@ def test_dataset(data_path, y_type, device, hidden_scale, methods):
             dropout_rate=0.4,
             y_type=y_type,
             device=device,
-            data_file_path=data_path
+            data_file_path=data_path, 
+            gamma = gamma,
+            reg_lambda=reg_lambda  
         )
 
         print("MultiHeadSelector initialized")
@@ -253,6 +255,9 @@ def parse_args():
         choices=['sis', 'bcor', 'kendall'],
         help="Specify which weight methods to use"
     )
+    #specific arguments
+    parser.add_argument('--gamma', type=float, default=0.5,help='regularization gamma')
+    parser.add_argument('--reg_lambda', type=float, default=1e-5,help='regularization lambda')
 
     return parser.parse_args()
 
@@ -274,11 +279,15 @@ def main():
     print(f"Task: {args.y_type}")
     print(f"Hidden scale: {args.hidden_scale}")
     print(f"Methods: {args.methods}")
+    print(f"Gamma: {args.gamma}")
+    print(f"Reg Lambda: {args.reg_lambda}")
     
     success = test_dataset(
         args.data_path,
         args.y_type,
         device,
+        args.gamma,        
+        args.reg_lambda, 
         args.hidden_scale,
         args.methods
     )

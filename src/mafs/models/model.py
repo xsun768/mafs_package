@@ -77,14 +77,12 @@ class SingleHeadSelector(nn.Module):
         return self.feature_selection.get_selection_rate()
 
 
-def train_single_head(model, train_loader, val_loader, device):
-    lr = 0.001
+def train_single_head(model, train_loader, val_loader, device,y_type='categorical', reg_lambda=1e-5,gamma=0.5):
+    lr = 1e-5
     epochs = 100
     weight_decay = 1e-5
     patience = 10
-    gamma = 0.5
-    reg_lambda = 1e-2
-    y_type = 'categorical'
+    
     
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(

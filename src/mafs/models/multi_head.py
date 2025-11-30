@@ -17,7 +17,7 @@ except ImportError:
 
 class MultiHeadSelector:
     def __init__(self, input_size, n_classes, weight_files, hidden_scale=200, dropout_rate=0.4, 
-                 y_type='categorical', device='cpu',data_file_path=None):
+                 y_type='categorical', device='cpu',data_file_path=None, gamma=0.5, reg_lambda=1e-2):
         
         self.input_size = input_size
         self.n_classes = n_classes
@@ -26,6 +26,8 @@ class MultiHeadSelector:
         self.dropout_rate = dropout_rate
         self.y_type = y_type
         self.device = device
+        self.gamma = gamma
+        self.reg_lambda = reg_lambda
         
         self.n_heads = len(weight_files)
         self.models = []
@@ -53,7 +55,13 @@ class MultiHeadSelector:
             ).to(self.device)
             
             trained_model, final_weights = train_single_head(
-                model, train_loader, val_loader, self.device
+                model, 
+                train_loader, 
+                val_loader, 
+                self.device,
+                y_type=self.y_type,      
+                reg_lambda=self.reg_lambda,  
+                gamma=self.gamma       
             )
             
             self.models.append(trained_model)
