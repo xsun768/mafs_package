@@ -1,5 +1,3 @@
----
-
 ## Required Argument Details
 - `--data_path`: Path to .npz file
 - `--y_type`: Task type - `categorical` (classification) or `numerical` (regression)
