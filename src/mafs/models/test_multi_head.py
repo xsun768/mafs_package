@@ -10,6 +10,7 @@ import pandas as pd
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
+import argparse
 
 
 models_dir = os.path.join(os.path.dirname(__file__), 'models')
@@ -104,27 +105,26 @@ def prepare_dataset(file_path, seed, y_type='numerical', test_size=0.2):
     }
 
 
-def create_weight_files(n_features, weight_dir='./test_weights'):
-    """Create dummy weight files for testing"""
+
+def create_weight_files(n_features, methods, weight_dir='./test_weights'):
+    """Create dummy weight files based on user-specified methods"""
     os.makedirs(weight_dir, exist_ok=True)
-    
+
     weight_files = []
-    weight_types = ['sis', 'kendall', 'bcor']
-    
-    for wtype in weight_types:
-        weight_file = os.path.join(weight_dir, f'{wtype}_weights.csv')
-        
-        # Generate random weights
+
+    for method in methods:
+        weight_file = os.path.join(weight_dir, f'{method}_weights.csv')
         weights = np.random.rand(n_features)
-        
-        pd.DataFrame({wtype: weights}).to_csv(weight_file, index=False)
+        pd.DataFrame({method: weights}).to_csv(weight_file, index=False)
         weight_files.append(weight_file)
-    
-    print(f"\n✓ Created {len(weight_files)} weight files")
+
+    print(f"Created {len(weight_files)} weight files for methods: {methods}")
     return weight_files
 
 
-def test_dataset(data_path, y_type, device):
+
+
+def test_dataset(data_path, y_type, device, hidden_scale, methods):
     """Test MultiHeadSelector on a dataset"""
     print("\n" + "="*60)
     print(f"Testing {y_type.upper()} dataset")
@@ -141,7 +141,7 @@ def test_dataset(data_path, y_type, device):
     n_classes = data['num_label']
     
     # Create weight files
-    weight_files = create_weight_files(n_features)
+    weight_files = create_weight_files(n_features, methods)
     
     # Create DataLoaders
     if y_type == 'categorical':
@@ -175,12 +175,13 @@ def test_dataset(data_path, y_type, device):
             input_size=n_features,
             n_classes=n_classes,
             weight_files=weight_files,
-            hidden_scale=200,
+            hidden_scale=hidden_scale,
             dropout_rate=0.4,
             y_type=y_type,
             device=device,
             data_file_path=data_path
         )
+
         print("MultiHeadSelector initialized")
         
     except Exception as e:
@@ -219,34 +220,72 @@ def test_dataset(data_path, y_type, device):
     return True
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Test MultiHeadSelector")
 
+    parser.add_argument(
+        "--data_path",
+        type=str,
+        required=True,
+        help="Path to .npz dataset file"
+    )
+
+    parser.add_argument(
+        "--y_type",
+        type=str,
+        default="categorical",
+        choices=["categorical", "numerical"],
+        help="Type of labels"
+    )
+
+    parser.add_argument(
+        "--hidden_scale",
+        type=int,
+        default=200,
+        help="Hidden scale for MultiHeadSelector"
+    )
+
+    parser.add_argument(
+        "--methods",
+        type=str,
+        nargs='+',
+        default=['sis', 'bcor', 'kendall'],
+        choices=['sis', 'bcor', 'kendall'],
+        help="Specify which weight methods to use"
+    )
+
+    return parser.parse_args()
+
+
+
+
+    
 
 def main():
-    # Check device
+    args = parse_args()
+
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    print(f"\nUsing device: {device}")
     
-    # Data paths
-    data_dir = '../../../data/simulation_data'
-
-    #################################################################################################
-    # numerical_data = os.path.join(data_dir, 'data_25k_combine_numerical.npz')
-
-    # if not os.path.exists(numerical_data):
-    #     print(f"\n✗ Numerical data not found: {numerical_data}")
-    #     return False
-    # numerical_success = test_dataset(numerical_data, 'numerical', device)
-    # print(f"Numerical dataset: {'Finished' if numerical_success else 'FAILED'}")
-    #################################################################################################
-
-    categorical_data = os.path.join(data_dir, 'data_25k_combine_categorical.npz')
-    if not os.path.exists(categorical_data):
-        print(f"\n✗ Categorical data not found: {categorical_data}")
+    if not os.path.exists(args.data_path):
+        print(f"Data not found: {args.data_path}")
         return False
-    categorical_success = test_dataset(categorical_data, 'categorical', device)
-    print(f"Categorical dataset: {'Finished' if categorical_success else 'FAILED'}")
     
-    #################################################################################################
+    print(f"\nData: {args.data_path}")
+    print(f"Task: {args.y_type}")
+    print(f"Hidden scale: {args.hidden_scale}")
+    print(f"Methods: {args.methods}")
+    
+    success = test_dataset(
+        args.data_path,
+        args.y_type,
+        device,
+        args.hidden_scale,
+        args.methods
+    )
+    
+    print(f"\nResult: {'Finished' if success else 'FAILED'}")
+    return success
+
 
 
 if __name__ == "__main__":
