@@ -175,11 +175,11 @@ def test_dataset(data_path, y_type, device):
             input_size=n_features,
             n_classes=n_classes,
             weight_files=weight_files,
-            hidden_scale=4,
-            dropout_rate=0.2,
+            hidden_scale=200,
+            dropout_rate=0.4,
             y_type=y_type,
             device=device,
-            data_file_path=data_path  # ← Enable evaluation!
+            data_file_path=data_path
         )
         print("MultiHeadSelector initialized")
         
