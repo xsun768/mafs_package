@@ -18,8 +18,8 @@ Comprehensive experiments on multiple high-dimensional biomedical datasets, incl
 
 ## Installation
 ```bash
-git clone https://github.com/yourname/mafs.git
-cd mafs
+git clone https://github.com/xsun768/mafs_package.git
+cd mafs_package
 pip install -r requirements.txt
 ```
 ```bash
