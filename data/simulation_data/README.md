@@ -10,6 +10,11 @@ This collection contains one simulated datasets with varying sample sizes and fe
 - **Features**: 25,963
 - **Informative Features**: 48 
 
+#### 2. data_500_25k_combine_categorical.npz
+- **Samples**: 500
+- **Features**: 25,963
+- **Informative Features**: 48 
+
 
 ## Data Structure
 
